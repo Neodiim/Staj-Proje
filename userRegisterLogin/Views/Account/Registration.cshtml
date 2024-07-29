@@ -1,0 +1,52 @@
+﻿@model userRegisterLogin.ViewModels.UserRegistration
+
+@{
+    ViewData["Title"] = "Registration";
+}
+
+<h1>Registration Page</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Registration">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @if (ViewBag.Message != null)
+            {
+                <div class="form-group" style="color: green;"> @ViewBag.Message</div>
+            }
+
+            <div class="form-group">
+                <label asp-for="userName" class="control-label">Name</label>
+                <input asp-for="userName" class="form-control" />
+                <span asp-validation-for="userName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="userMail" class="control-label">E-mail</label>
+                <input asp-for="userMail" class="form-control" />
+                <span asp-validation-for="userMail" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="userPassword" class="control-label">Password</label>
+                <input asp-for="userPassword" class="form-control" />
+                <span asp-validation-for="userPassword" class="text-danger"></span>
+            </div>
+
+            <br />
+
+            <div class="form-group">
+                <input type="submit" value="Register" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    Already have and account? <a asp-action="Login">Got to Login</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

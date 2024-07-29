@@ -1,0 +1,39 @@
+﻿@model userRegisterLogin.ViewModels.UserLogin
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h1>Login Page</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Login">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="userMail" class="control-label">E-mail address</label>
+                <input asp-for="userMail" class="form-control" />
+                <span asp-validation-for="userMail" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="userPassword" class="control-label">Password</label>
+                <input asp-for="userPassword" class="form-control" />
+                <span asp-validation-for="userPassword" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Login" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+   Don't have an account? <a asp-action="Registration">Go to Registration</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,85 @@
+﻿@model IEnumerable<userRegisterLogin.Models.UserFileInfo>
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+        crossorigin="anonymous"></script>
+
+<div>
+    <canvas id="myChart"></canvas>
+</div>
+
+
+<style>
+    #myChart {
+        width: 600px !important;
+        height: 300px !important;
+        
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('myChart');
+
+
+    var xValues = @Html.Raw(Json.Serialize(Model.Select(m => m.userData)));
+    var yValues = @Html.Raw(Json.Serialize(Model.Select(m => m.numberData)));
+
+
+
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+        labels: xValues,
+        datasets: [
+            {
+              data: yValues,
+              borderWidth: 1
+            },
+            {
+                data: xValues,
+                borderWidth: 1
+             }
+        ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.userData)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.numberData) 
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(x => item.userData)
+            </td>
+            <td>
+                @Html.DisplayFor(x => item.numberData)
+            </td>
+
+        </tr>
+}
+    </tbody>
+</table>

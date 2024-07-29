@@ -1,0 +1,46 @@
+﻿@model IEnumerable<userRegisterLogin.Models.UserAccount>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Account List</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.userID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.userName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.userPassword)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.userMail)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.userID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.userName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.userPassword)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.userMail)
+            </td>
+
+        </tr>
+}
+    </tbody>
+</table>

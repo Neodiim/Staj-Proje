@@ -1,0 +1,203 @@
+﻿@model IEnumerable<userRegisterLogin.Models.UserUploadFileInfo>
+
+<h2>Hoş geldiniz, @ViewBag.Name!</h2>
+
+<h2>Excel Dosyası Yükle</h2>
+<br />
+<form asp-action="SecurePage" enctype="multipart/form-data" method="post">
+    <div class="form-group">
+        <input type="file" name="file" class="form-control-file" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Yükle</button>
+</form>
+<br />
+
+<h3>Yüklenen Excel Dosyaları</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Dosya Adı</th>
+            <th>Yükleme Tarihi</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var file in Model)
+        {
+            <tr>
+                <td>@file.FileName</td>
+                <td>@file.UploadDate</td>
+                <td>
+                    <button class="btn btn-primary view-data" data-table="@file.TableName">Verileri Görüntüle</button>
+                    <button class="btn btn-danger delete-data" data-table="@file.TableName">Sil</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="dataContainer"></div>
+<canvas id="myChart" width="400" height="200"></canvas>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            $('.delete-data').on('click', function () {
+                var button = $(this);
+                var tableName = button.data('table');
+                if (confirm('Bu tabloyu silmek istediğinizden emin misiniz?')) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteUserExcelData", "Account")',
+                        type: 'POST',
+                        data: { tableName: tableName },
+                        success: function (result) {
+                            alert(result);
+                            button.closest('tr').remove(); // Tablodan satırı kaldır
+                        },
+                        error: function (error) {
+                            console.log('Error:', error);
+                            alert('Silme işlemi sırasında bir hata oluştu.');
+                        }
+                    });
+                }
+            });
+
+
+
+
+
+
+            $('.view-data').on('click', function () {
+                var button = $(this);
+                var tableName = button.data('table');
+                var dataContainer = $('#dataContainer');
+
+                if (button.text() === 'Verileri Gizle') {
+                    dataContainer.empty();
+                    $('#myChart').remove();
+                    $('<canvas id="myChart" width="400" height="200"></canvas>').insertAfter(dataContainer);
+                    button.text('Verileri Görüntüle');
+                } else {
+                    $.ajax({
+                        url: '@Url.Action("GetUserExcelData", "Account")',
+                        type: 'GET',
+                        data: { tableName: tableName },
+                        success: function (data) {
+                            displayDataTable(data);
+                            createChart(data);
+                            button.text('Verileri Gizle');
+                        },
+                        error: function (error) {
+                            console.log('Error:', error);
+                            dataContainer.html('<p>Veri yüklenirken bir hata oluştu.</p>');
+                        }
+                    });
+                }
+            });
+
+            function displayDataTable(data) {
+                var dataContainer = $('#dataContainer');
+                if (data.length === 0) {
+                    dataContainer.html('<p>Veri bulunamadı.</p>');
+                    return;
+                }
+
+                var table = '<table class="table table-striped">';
+
+                table += '<thead><tr>';
+                for (var key in data[0]) {
+                    if (data[0].hasOwnProperty(key)) {
+                        table += '<th>' + key + '</th>';
+                    }
+                }
+                table += '</tr></thead>';
+
+                table += '<tbody>';
+                $.each(data, function (i, item) {
+                    table += '<tr>';
+                    for (var key in item) {
+                        if (item.hasOwnProperty(key)) {
+                            table += '<td>' + item[key] + '</td>';
+                        }
+                    }
+                    table += '</tr>';
+                });
+                table += '</tbody>';
+
+                table += '</table>';
+                dataContainer.html(table);
+            }
+
+            function createChart(data) {
+                var ctx = document.getElementById('myChart').getContext('2d');
+
+                var allLabels = Object.keys(data[0]);
+                var labels = allLabels.slice(3);
+
+                var datasets = data.map(function (row, index) {
+                    return {
+                        label: 'Cihaz ' + (index + 1),
+                        data: Object.values(row).slice(3).map(Number),  // 3. sütundan itibaren verileri al
+                        borderColor: getRandomColor(),
+                        fill: false
+                    };
+                });
+
+                var allDataPoints = datasets.flatMap(dataset => dataset.data);
+
+                
+                var minValue = Math.min(...allDataPoints);
+                var maxValue = Math.max(...allDataPoints);
+
+                var range = maxValue - minValue;
+
+                var yMin = Math.max(0, minValue - range * 0.1);
+                var yMax = maxValue + range * 0.1;
+
+
+
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: yMin,
+                                max: yMax,
+                                ticks: {
+                                    count: 10
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    autoSkip: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+        });
+    </script>
+}
